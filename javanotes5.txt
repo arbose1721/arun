@@ -1,0 +1,903 @@
+package myprograms;
+
+import java.io.File;
+import java.io.IOException;
+
+/*
+ * Character Stream:: Reader and Writer(Abstract classes)
+ * Byte Stream:: OutputStream and InputStream(Abstract classes)
+ */
+public class FileOperations
+{
+	public static void main(String[] args) throws Exception
+	{
+		//to access the existing  text file=> File class!
+	
+		File obj=new File("E:\\RenaultBatch2021.txt");//valid
+		File obj1=new File("E:/RenaultBatch2021.txt");//valid
+		
+		//file properties
+		System.out.println("Filename:: "+obj1.getName());
+		System.out.println("Path:: "+obj1.getAbsolutePath());
+		System.out.println("Exists? :: "+obj1.exists());
+		System.out.println("Hidden file?? "+obj1.isHidden());
+		System.out.println("Directory::: "+obj1.isDirectory());//is this a folder?
+		System.out.println("File::: "+obj1.isFile());
+		
+		System.out.println("File Size::: "+obj1.length());//size in terms of bytes
+		System.out.println("Write Permission??? ::: "+obj1.canWrite());
+
+		//create a text file from Java
+		File f2=new File("E:\\RenaultJavaBatch.txt");
+		f2.createNewFile();//IOException-checked exception
+
+		File f3=new File("E:\\RenaultJavaUpdated.txt");
+		if(obj1.exists())//RenaultBatch2021.TXT
+		{
+			obj1.renameTo(f3);//RENAMING A FILE
+			System.out.println("File Renamed Successfully");
+		}
+		File f4=new File("E:\\R1\\R2\\R3");
+		if(f4.mkdirs())//folders::make directories
+		{
+			System.out.println("Directory Created Successfully!");
+		}
+		else
+		{
+			System.out.println("Directory Not Created!");
+		}
+		
+		//Creating text file in eclipse project
+		//user.dir:: it is one of the built in property key=>produce current path 
+		System.out.println("Path::: "+System.getProperty("user.dir"));//Path of the Current Eclipse Project
+
+		//File  s1=new File(System.getProperty("user.dir")+ "\\src\\" +"RenaultEmps.txt");
+		File s1=new File("C:\\Users\\dhaya\\eclipse-workspace\\Renault2021Java\\src\\RenaultEmps.txt");
+		System.out.println("Eclipse Text File Exists? :: "+s1.exists());
+
+		
+	
+				
+	}
+}
+=============================================================================================================
+package myprograms;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+
+//BYTE STREAM PROGRAM
+public class FileOutputStream_FileInputStream 
+{
+
+	public static void main(String[] args) throws Exception
+	{
+		//1.Fileoutputstream will create a runtime text file
+		//2.Write operation
+		//Byte Stream
+		FileOutputStream obj=new FileOutputStream("E:\\RenaultReadWrite.txt");
+		String str="Good Morning!";
+		obj.write(str.getBytes());//convert String to bytes
+		System.out.println("File Created and Data Written into file!");
+		obj.close();//closing the write mode!
+		
+		//Read Operation
+		File f1=new File("E:\\RenaultJavaUpdated.txt");
+		if(!f1.exists() || f1.length()<0)
+		{
+			System.out.println("File Not Exists! File Empty!");
+		}
+		else
+		{
+			FileInputStream f4=new FileInputStream(f1);//Object of File Class
+			int i;//bcos it is a ByteStream
+			while((i=f4.read())!=-1)//UNTIL IT REACHES END OF FILE(EOF)
+			{
+				System.out.print((char)i);
+			}
+			f4.close();//closing the stream!!!!!!!!!!!!!!!!!!
+		}
+			
+
+	}
+
+}
+=========================================================================================================
+package myprograms;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.InputStreamReader;
+
+//CHARACTER STREAM PROGRAM
+public class FileReader_FileWriter 
+{
+	public static void main(String[] args) throws Throwable
+	{
+		InputStreamReader obj=new InputStreamReader(System.in);//similar to Scanner class
+		BufferedReader b1=new BufferedReader(obj);//pass InputStreamReader obj
+	
+		System.out.println("Eno::: ");
+		String i=b1.readLine();
+		
+		System.out.println("Name::: ");
+		String j=b1.readLine();
+
+		//Write operation
+		//FileWriter class .. it is similar to FileOutputStream!
+
+		//true:: appends file(NO OVERRIDING),false::overwrites file
+		//default is false(override the content)!
+
+		FileWriter fw=new FileWriter("E:\\RenaultJavaTraining.txt",true);//runtime text file created
+		BufferedWriter bw=new BufferedWriter(fw);
+		
+		bw.write(i);//eno
+		bw.write(j);//name
+		bw.close();
+		
+		FileReader fr=new FileReader("E:\\RenaultJavaTraining.txt");
+		BufferedReader br=new BufferedReader(fr);	
+		String res;
+		/*
+		 * -1:: byte stream
+		 * null=>character stream
+		 */
+
+		while((res=br.readLine())!=null)
+		{
+			System.out.println("After Read::: "+res);
+		}		
+
+		
+
+
+	}
+}
+===================================================================================================
+package myprograms;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+//NotSerializableException thrown if the class does not implement Serializable interface!
+/*
+* 1.Serializable interface does not have ANY METHODS!!!(""MARKER INTERFACE"")
+	public interface Serializable
+	{
+	}
+2.this interface NOTIFY the JVM to perform serialization!
+3.*********Only objects marked SERIALIZABLE can be persisted into text file !!	
+*/
+
+class Book implements Serializable//marker interface--now this class eligible for SERIALIZATION
+{
+	//transient modifier=>ignore the variable during serialization!!!!
+	//ex:password fields(OTP)
+
+	 private transient String ISBN;//cannot be serialized in text file, so null is displayed
+	String bookname;
+	String author;
+	public Book(String iSBN, String bookname, String author) 
+	{
+		super();
+		ISBN = iSBN;
+		this.bookname = bookname;
+		this.author = author;
+	}
+	@Override
+	public String toString() 
+	{
+		return "Book [ISBN=" + ISBN + ", bookname=" + bookname + ", author=" + author + "]";
+	}	
+}
+public class FileCustomObjectSerialization 
+{
+	/*
+	 *Serialization(Marshalling):: Saving or writing the OBJECT in a TEXT FILE
+	 *Deserialization(Unmarshalling):: Restoring the SAME OBJECT again from the text file 
+	 */
+	/*
+	 * ByteStream::::=>ObjectInputStream and ObjectOutputStream classes used for SERIALIZATION!
+	 */
+
+	public static void main(String[] args) throws Exception
+	{
+		Book b1=new Book("5653-565-565","Java Complete Reference","Thananya");
+
+		Book b2=new Book("5653-565-561","JSP Complete Reference","Abi");
+
+		Book b3=new Book("5653-565-566","Jython Complete Reference","Surya");
+	
+		//Write Object into text file
+		//.ser,.dat=>serialization file extension		
+		FileOutputStream obj=new FileOutputStream("E:\\Books_Renault.ser");
+		ObjectOutputStream b11=new ObjectOutputStream(obj);
+		b11.writeObject(b1);//Serialization(saving object)
+		b11.writeObject(b2);//Serialization(saving object)
+		b11.writeObject(b3);//Serialization(saving object)
+		
+		System.out.println("Book Data Serialized or Persisted!");		
+		b11.close();
+		
+		//Read Object
+		FileInputStream obj1=new FileInputStream("E:\\Books_Renault.ser");
+		ObjectInputStream b12=new ObjectInputStream(obj1);
+		Book b6;
+		while(obj1.available() != 0)//read more than one object
+		{
+			b6 = (Book) b12.readObject();//Deserialization(restoring object)
+			System.out.println("Data Deserialized:: "+b6.toString());//output
+		}
+		b12.close();
+		
+		
+		
+		
+	}
+}
+========================================================================================
+package myprograms;
+/*
+ * A design patterns are well-proved solution for solving the specific problem/task.
+ * 
+ * Problem Given:
+Suppose you want to create a class for which only a single instance (or object) should be created and 
+that single object can be used by all other classes.
+
+Solution:
+Singleton design pattern is the best solution of above specific problem. 
+So, every design pattern has some specification or set of rules for solving the problems. 
+But remember one-thing, design patterns are programming language independent strategies for solving 
+the common object-oriented design problems. 
+That means, a design pattern represents an idea, not a particular implementation.
+
+Advantage of design pattern:
+1.They are reusable in multiple projects.
+2.They provide the solutions that help to define the system architecture.
+3.They capture the software engineering experiences.
+4.They provide transparency to the design of an application.
+5.They are well-proved and testified solutions since they have been built upon the knowledge and 
+experience of expert software developers.
+6.Design patterns don?t guarantee an absolute solution to a problem. 
+They provide clarity to the system architecture and the possibility of building a better system.
+
+When should we use the design patterns?
+--We must use the design patterns during the analysis and requirement phase of 
+SDLC(Software Development Life Cycle).
+ */
+/*
+ * --Singleton pattern helps us to keep ONLY ONE OBJECT of a 
+ * class at any time
+ * --Singleton design pattern restricts the OBJECT CREATION
+ * and ensures that ONLY ONE OBJECT for the class exists in JVM.
+ * --Saves memory bcos object is not created at each request.
+ * Only single object is reused again and again!
+ * --It is mostly used in DB applications,Multithreaded applications
+ * --Singleton class(static member,static method,private constructor)
+ */
+
+public class SingletonDesignPatternDemo 
+{
+	//static data member  of a class
+	private static SingletonDesignPatternDemo obj;//reference variable
+
+	//private constructor
+	private SingletonDesignPatternDemo()
+	{
+		
+	}
+	//static factory method
+	public static SingletonDesignPatternDemo getMyObject1() 
+	{
+		if(obj==null)//create a object only once
+		{
+			obj=new SingletonDesignPatternDemo();
+			System.out.println("One time object created!");
+		}
+		return obj;//return the existing object ALWAYS!!!!
+	}
+	public void show()
+	{
+		System.out.println("show()");
+	}
+
+	public static void main(String[] args)
+	{		/*
+		 * 		//invalid FOR SINGLETON DESIGN PATTERN STARATEGY!
+
+		SingletonDesignPatternDemos h=new SingletonDesignPatternDemos();
+		SingletonDesignPatternDemos h1=new SingletonDesignPatternDemos();
+		 */
+		SingletonDesignPatternDemo obj=getMyObject1();
+		obj.show();
+		SingletonDesignPatternDemo obj1=getMyObject1();
+		obj1.show();
+		SingletonDesignPatternDemo obj2=getMyObject1();
+		obj2.show();
+		SingletonDesignPatternDemo obj3=getMyObject1();
+		obj3.show();
+	}
+
+}
+======================================================================================================================
+package myprograms;
+
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+
+//int a[]=new int[4];=>Homogenous
+/*
+* Collection interface(java.util)::
+ex:Emp obj->Integer,String,Float,Date
+* --Heterogenous objects
+* --Everything stored as OBJECT rather than VALUE!
+* --grow DYNAMICALLY
+* --Purely ALGORITHM BASED FRAMEWORK
+* --READYMADE ARCHITECTURE API
+* --*****easily do the DML(Update,insert,delete,select) Operations
+*/
+/*
+* The Collection interface is the interface which is implemented by all the classes in the collection framework.
+*  It declares the methods that every collection will have. In other words, 
+* we can say that the Collection interface builds the foundation on which the collection framework depends.
+*/
+/*
+* Set  Interface::
+* --Unordered(Random order)(does not preserve the insertion order)
+* --unsorted
+* --does not allow DUPLICATE objects
+* --Set Interface Implementation classes::: HashSet(RANDOM),LinkedHashSet(ORDERED),TreeSet(SORTED)
+*/
+
+public class Collection_Set1 
+{
+	public static void main(String[] args) 
+	{
+		//Set s1=new Set();//interfaces cannot be instantiated
+		HashSet obj=new HashSet();//random order output
+		Set obj1=new HashSet();	//Polymorphic Object
+		
+		obj.add("Java");//String
+		obj.add(45454.545f);//Float::obj.add(new Float(45454.5454f));
+		obj.add(54545.343d);//new Double(436343.56456d);
+		obj.add('A');//new Character('A');
+		obj.add('A');//NO DUPLICATES
+		obj.add(new Integer(4540450));
+		
+		//Result comes in form of Arrays
+		System.out.println("HashSet(Unordered):: "+obj);//obj.toString()
+		System.out.println("HashSet Size:: "+obj.size());
+		System.out.println("HashSet Empty??:: "+obj.isEmpty());		
+		
+		
+		System.out.println("HashSet Objects:: ");
+		//Iterator is a interface. used for displaying heterogenous objects
+		Iterator i1=obj.iterator();
+		while(i1.hasNext())
+		{
+			System.out.println(i1.next());//PRINT THE CURRENT ELEMENT
+		}
+		obj.clear();//all the OBJECTS removed
+		System.out.println("HashSet Empty??:: "+obj.isEmpty());
+	
+	 	Set obj2=new LinkedHashSet();//valid
+		//LinkedHashSet obj21=new LinkedHashSet();//valid
+	 	obj2.add("Java");
+	 	obj2.add(3434.3434);
+		obj2.add("JSP");
+		obj2.add(453.431f);
+		obj2.add(453.431f);//no duplicates
+				
+		System.out.println("LinkedHashSet(Ordered):: "+obj2);	
+
+		//Sorted Collection(Homegenous data)
+		TreeSet t1=new TreeSet();	
+		t1.add("Java");
+		t1.add("Ejb");
+		t1.add("Mainframe");
+		t1.add("ASP.NET");
+		t1.add("C++");
+		t1.add("33435.545");
+		t1.add("3434.334");
+		//t1.add(33435.545);//java.lang.ClassCastException: java.lang.String cannot be cast to java.lang.Double
+
+		System.out.println("TreeSet(Sorted):: "+t1);
+
+		//SortedSet IS A sub interface of TreeSet interface
+		//SUBSET AND TAILSET HEADSET WORKS based on """""TreeSet sorting results"""""""
+		
+		SortedSet ts1=t1.subSet("C++", "Mainframe");//between operator in mysql,ORACLE,last one(Mainframe) is exclusive
+		System.out.println("SubSet:: "+ts1);
+		
+		SortedSet ts11=t1.tailSet("Ejb");//After Ejb
+		System.out.println("TailSet:: "+ts11);
+		
+		SortedSet ts12=t1.headSet("Java");//Before Java
+		System.out.println("HeadSet:: "+ts12);
+		
+
+
+		
+
+	}
+}
+=============================================================================================================
+package myprograms;
+
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+
+class Employees4
+{
+	int id;
+	String name;
+	float salary;
+	public Employees4(int id, String name, float salary) 
+	{
+		super();
+		this.id = id;
+		this.name = name;
+		this.salary = salary;
+	}
+	
+	@Override
+	public String toString()
+	{
+		return id +" "  + name + " "  + salary ;
+	}
+}
+public class Collection_Set2 
+{
+	public static void main(String[] args)
+	{
+		HashSet hobj=new HashSet();
+		Employees4 obj=new Employees4(1,"Devi",40405.43f);
+		Employees4 obj1=new Employees4(6,"Abi",50405.43f);
+		Employees4 obj2=new Employees4(3,"Daya",80405.43f);
+		Employees4 obj3=new Employees4(2,"Kani",20405.43f);
+		Employees4 obj4=new Employees4(9,"Raja",96405.43f);
+	
+		hobj.add(obj);//heterogenous objects
+		hobj.add(obj1);
+		hobj.add(obj2);
+		hobj.add(obj3);
+		hobj.add(obj4);
+		
+		for(Object i:hobj)
+		{
+			System.out.println(i.toString());//Random order output
+		}
+		System.out.println("Size:: "+hobj.size());
+
+		System.out.println("LinkedHashSet::: ");
+		LinkedHashSet hobj1=new LinkedHashSet();//ordered
+		hobj1.add(obj);//heterogenous objects
+		hobj1.add(obj1);
+		hobj1.add(obj2);
+		hobj1.add(obj3);
+		hobj1.add(obj4);
+		
+		for(Object i:hobj1)
+		{
+			System.out.println(i);
+		}
+
+
+	}
+}
+==================================================================================================================
+package myprograms;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/*
+ * List interface:
+ * --Implementation classes are LinkedList and ArrayList
+ * --ordered collection(insertion order is maintained)
+ * --Allows duplicates
+
+ *  * ArrayList::
+ * --Dynamic array is implicitly implemented
+ * --DML operations is slow
+ * --Accessing data is fast!!!(index)
+*/
+
+public class Collection_List1 
+{
+	//disable compilation warnings
+	@SuppressWarnings({"unchecked","rawtypes"})//Method level annotation
+	public static void main(String[] args) 
+	{
+		List obj1=new ArrayList();//valid 
+		ArrayList obj=new ArrayList();
+		obj.add(3434);
+		obj.add("Java");
+		obj.add('A');
+		obj.add(43.54F);
+		obj.add("jsp");
+		obj.add("jsp");//duplicates allowed!
+
+		//insertion order is maintained!
+		System.out.println("ArrayList(Ordered collection): "+obj);//toString(arrays)
+		obj.add(3,"Python");//3rd index position
+		System.out.println("ArrayList: "+obj);
+		
+		for(Object i :obj)
+		{
+			System.out.println(i);
+		}
+		System.out.println("Get:: "+obj.get(4));//retrieve
+		obj.set(3,"Ruby");//modify
+		System.out.println("ArrayList: "+obj);	
+		System.out.println("ArrayList: "+obj.contains("jsp"));
+	
+	}
+}
+====================================================================================================================
+package myprograms;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+
+public class Collection_List2 
+{	
+	//disable compilation warnings
+	@SuppressWarnings({"unchecked","rawtypes"})//Method level annotation
+	public static void main(String[] args) 
+	{
+		Employees4 obj=new Employees4(1,"Devi",40405.43f);
+		Employees4 obj1=new Employees4(6,"Abi",50405.43f);
+		Employees4 obj2=new Employees4(3,"Daya",80405.43f);
+		Employees4 obj3=new Employees4(2,"Kani",20405.43f);
+		Employees4 obj4=new Employees4(9,"Raja",96405.43f);
+
+		//ARRAY LIST INDEX STARTS FROM 0.....
+		//Non generic arraylist! heterogenous(any object)!
+		
+		ArrayList aobj=new ArrayList();//insertion order is maintained
+		
+		//ArrayList<Object> aobj=new ArrayList<Object>();//this is also valid!
+
+		aobj.add(obj);
+		aobj.add(obj1);
+		aobj.add(obj2);
+		aobj.add(obj3);
+		aobj.add(obj4);
+		//aobj.add(new ExceptionPropagationDemo1());//here it is valid
+		
+		for(Object i : aobj)
+		{
+			System.out.println(i.toString());
+		}
+		System.out.println("Iterator with custom class:: ");
+		Iterator i1=aobj.iterator();
+		while(i1.hasNext())
+		{
+			System.out.println(i1.next());
+		}
+		Object gobj=aobj.get(3);
+		System.out.println("Get(3):::"+gobj);
+
+		//generic arraylist! homogeneous(only EMPLOYEE4 OBJECT)
+		ArrayList<Employees4> aobj1=new ArrayList<Employees4>();//valid
+		ArrayList<Employees4> aobj3=new ArrayList<>();//valid:: LHS MANDATORY RHS OPTIONAL
+		aobj1.add(obj);//add method only allows Employees4 objects!!!!
+		aobj1.add(obj1);
+		aobj1.add(obj2);
+		aobj1.add(obj3);
+		aobj1.add(obj4);
+		//aobj1.add(new ExceptionPropagationDemo1());//here it is not valid bcos aobj1 is generic(Employees4)!
+
+		System.out.println("Generic ArrayList:: ");
+		
+		for(Employees4 i : aobj1)
+		{
+			System.out.println(i.toString());
+		}
+
+
+	}
+}
+===============================================================================================================
+package myprograms;
+
+import java.util.LinkedList;
+
+/*
+ * LinkedList::
+ * --Ordered collection
+ * --internally uses DOUBLY LINKED LIST(previous node+data+next node) 
+ * to store the elements
+ * --DML operations are very fast compared to arraylist
+ * --class LinkedList implements List,""Queue(Interface)(Ticket counter)""
+ */
+
+public class Collection_List3 
+{
+	public static void main(String[] args)
+	{
+		Employees4 obj=new Employees4(1,"Devi",40405.43f);
+		Employees4 obj1=new Employees4(6,"Abi",50405.43f);
+		Employees4 obj2=new Employees4(3,"Daya",80405.43f);
+		Employees4 obj3=new Employees4(2,"Kani",20405.43f);
+		Employees4 obj4=new Employees4(9,"Raja",96405.43f);
+		Employees4 obj5=new Employees4(19,"Thananya",209405.43f);
+
+		//non generic 
+		LinkedList aobj=new LinkedList();
+
+		//generic
+		LinkedList<Employees4> aobj1=new LinkedList<Employees4>();//valid
+		aobj1.add(obj);
+		aobj1.add(obj1);
+		aobj1.add(obj2);
+		aobj1.add(obj3);
+		aobj1.add(obj4);
+		aobj1.addFirst(obj5);
+
+		for(Employees4 i : aobj1)
+		{
+			System.out.println(i.toString());
+		}
+		System.out.println("First Employee Object:: "+aobj1.getFirst());
+		System.out.println("Last Employee Object:: "+aobj1.getLast());
+
+	}
+}
+===========================================================================================================
+package myprograms;
+
+import java.util.List;
+import java.util.Vector;
+
+/*
+ * class Vector::
+ * --implements List interface
+ * --ordered collection
+ * --allows duplicates
+ * --"Thread safe class"=>vector class contains many SYNCHRONIZED METHODS!
+ * --"LEGACY CLASS(DEPRECATED CLASS)+METHODS"::: 
+ * --vector class has to be reengineered to the latest jdk version!
+ *
+ *--ArrayList and LinkedList is NON-SYNCHRONIZED!
+ */
+
+public class Collection_VectorDemo
+{
+	public static void main(String[] args)
+	{
+		//Vector obj=new Vector();//valid
+		List obj=new Vector();//allows duplicates
+		obj.add("Java");//String
+		obj.add(32);//Integer
+		obj.add(32);//Integer
+		obj.add(34.34f);//Float
+		obj.add('A');//obj.add(new Character('A'))
+		obj.add(new Integer(335));//OPTIONAL
+		obj.add(new String("JSP"));
+		System.out.println("Vector(ordered):: "+obj);//toString()
+	
+	
+	}
+
+}
+===============================================================================================
+package myprograms;
+
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Queue;
+
+/*
+Queue(Interface)::
+--Inherits from Collection interface
+--Supports FIFO(First in First out)
+--Queue interface implemented by LinkedList class!!!!
+*/
+public class Collection_QueueDemo1 
+{
+	public static void main(String[] args) 
+	{
+		//Queue a1=new Queue();//invallid
+		Queue<Object> q1=new LinkedList<Object>();
+		q1.add("30");
+		q1.add("Java");
+		q1.add("20");
+		q1.add(43.43f);
+		q1.add(20);
+		q1.add(20);
+		System.out.println("Queue::"+q1);	
+		
+		//peek->Retrieves, but does not remove, the head of this queue, or returns null if this queue is empty.
+		System.out.println("Peek(First):: "+q1.peek());//display first element
+		System.out.println("Poll(Remove):: "+q1.poll());//first element removed automatically
+		System.out.println("Queue::"+q1);
+		q1.add("PHP");//added at the end of the queue
+		System.out.println("Queue::"+q1);
+		Iterator<Object> ty1=q1.iterator();
+		while(ty1.hasNext())
+		{
+			q1.poll();
+		}
+		System.out.println("Empty? "+q1.isEmpty());
+		System.out.println("Size? "+q1.size());
+
+		
+	}
+
+}
+======================================================================================================
+package myprograms;
+
+import java.util.Stack;
+
+/*
+ * --Stack class inherits Vector class and also implements List interface!
+ * --LIFO principle
+ * 
+ */
+
+public class Collection_StackDemo1 
+{
+	public static void main(String[] args) 
+	{
+		Stack obj=new Stack();
+		obj.push("Java");
+		obj.push("JSP");
+		obj.push(454);
+		obj.push(434.45f);//top of the stack
+		System.out.println("Stack Object:: "+obj);
+		System.out.println("Stack Size:: "+obj.size());
+	
+		//peek=>returns the top element of the stack
+		System.out.println("Stack Top element:: "+obj.peek());
+		System.out.println("Stack POP element:: "+obj.pop());//remove the top element
+		System.out.println("After Stack pop:: "+obj);
+
+		obj.pop();
+		obj.pop();
+		obj.pop();//after this stack is empty!
+		obj.pop();//throws  java.util.EmptyStackException
+		
+		System.out.println("After Stack pop:: "+obj);
+		System.out.println("After All pop:: "+obj.isEmpty());
+	
+	
+	}
+}
+========================================================================================================
+package myprograms;
+
+import java.util.ArrayList;
+/*
+ * Generics::
+ * --compile time type safety!
+ * --no type casting
+ * --Storing specific object type(HOMOGENEOUS)!
+ */
+public class Generics1
+{	
+	//disable compilation warnings
+	@SuppressWarnings({"unchecked","rawtypes"})
+	public static void main(String[] args) 
+	{
+		//Heterogenous collection
+		//NON-GENERIC
+		ArrayList t1=new ArrayList();
+		t1.add("Java");
+		t1.add(4545.545f);
+		t1.add('C');
+		
+		//object typecasting is mandatory if it is heterogenous objects
+		//float->primitive data type,Float->Wrapper class for float
+		float t11=(float)t1.get(1);//index
+		//Float obj=(Float)t1.get(1);//index... this is also valid
+		System.out.println("Non Generic:: "+t11);
+		
+		//Homogenous collection
+		//GENERIC
+		ArrayList<String> t2=new ArrayList<String>();//ONLY ALLOWS STRING
+		t2.add("Java");
+		t2.add("JSP");
+		t2.add("45");
+		//t2.add(45);//invalid
+		
+		String d=t2.get(1);//index--//NO TYPECASTING!!!!!
+		System.out.println("Generic:: "+d);
+		
+	}
+}
+=======================================================================================================
+package myprograms;
+
+import java.util.ArrayList;
+import java.util.List;
+/*
+ * Generic Wildcard characters::
+ * --? is a wildcard symbol. It means any object type!
+ * --we can use a wildcard as a type of parameter,field,return type
+ *  */
+public class Generics2 
+{
+	static void disp1(List<Object> a)
+	{
+		for(Object i:a)
+		{
+			System.out.println("<Object>:: "+i);
+		}
+	}
+	//runtime polymorphism
+	//? is replaced by Integer,String,Float......
+	//1 method but works for different object types!
+	static void disp2(List<?> t)
+	{
+		for(Object i:t)
+		{
+			System.out.println("<?>:: "+i);
+		}
+	}	
+	public static void main(String[] args) 
+	{
+		List<Object> obj=new ArrayList<>();//Any object type
+		obj.add(3434);
+		obj.add("Devi");
+		obj.add(434.43f);
+
+		List<String> obj1=new ArrayList<>();
+		obj1.add("Devi");
+		obj1.add("JSP");
+		//obj1.add(434.43f);//invalid
+		
+		List<Integer> obj2=new ArrayList<>();
+		obj2.add(434);
+		obj2.add(3534);
+		obj2.add(3234);
+
+		disp1(obj);//<Object>
+		disp2(obj);//? is replaced by Object
+
+		//disp1(obj1);//invalid
+		disp2(obj1);//?is replaced by String
+
+		//disp1(obj2);//invalid
+		disp2(obj2);//? is replaced by Integer
+}
+}
+==================================================================================================================
+Activity::
+
+
+1.Write a program that creates a new file called batch mates and store your entire batch mates name in it and display the details.
+
+2.Create a CSV file with 5 movie names along with hero and heroine names. Write a program to read from the CSV file and display it to the user.
+
+3.Create an object called employee whose attributes are emp_id, emp_name and emp_sal.  Write a program to Serialize and deserialize the employee object except for the emp_sal attribute.(Use Scanner class to  get the input from the user).
+
+4.Write a program that will accept 10 numbers from the user as input and store it in a collection. 
+ The numbers should not be duplicated. Also get the index position along with the number where it has to be stored.
+
+5.Create a collection that will contain the names of the days in a week. Print the collection. 
+Display the length of the collection and convert the collection into an array and print it.
+
+6.Design a class that acts as a library for the following kinds of media: book, video, and 
+newspaper. Provide one version of the class that uses generics and one that does not.
+The class should be with add and retrieve methods in order to add and retrieve values 
+from the library.
+
+7.Consider placing a dozen of bangles in a bangle stand. Number the bangles from 1 to 12. Now start removing the bangles from the stand. Simulate this scenario with the help of Queue Interface.
+
+8.Create a class Supplier with name and other attributes. Populate an ArrayList with 5 Suppliers.  Print the contents of the retrieved supplier object on the screen.Use Scanner to get a suppliername from the keyboard and retrieve the supplier data if it exists. 
+
+9.Demonstrate Stack concepts like  PUSH and POP operation for the Supplier class.
+==================================================================================================================
